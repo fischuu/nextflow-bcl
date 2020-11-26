@@ -1,5 +1,5 @@
 FROM continuumio/miniconda:4.7.12
-MAINTAINER Angel Angelov <aangeloo@gmail.com>
+MAINTAINER Daniel Fischer <daniel.fischer@luke.fi>
 
 LABEL description="Docker image containing all requirements for the nextflow-bcl pipeline"
 

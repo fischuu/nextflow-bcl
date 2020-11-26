@@ -39,15 +39,17 @@ if (params.help) {
  params.outdir = "$workflow.launchDir/results-bcl"
  params.title = "InterOp and bcl2fastq summary"
  params.multiqc_config = "$baseDir/multiqc_config.yml" //in case ncct multiqc config needed
- params.load_threads = usable_cores
- params.proc_threads = usable_cores
+ params.load_threads = 10
+ params.proc_threads = 10
  params.barcode_mismatches = 1 // default of bcl2fastq. Allows 0,1,2, so set limits also here
  params.scratch = false // used in special cases, stages the bcl process in a local dir
  if (nsamples >= usable_cores) {
-     params.write_threads = usable_cores
+     params.write_threads = 10
      } else {
      params.write_threads = nsamples
          } //must not be higher than number of samples
+ params.adapter_stringency = 0.9
+ params.min_trimmed_read_length = 50
 
  mqc_config = file(params.multiqc_config) // this is needed, otherwise the multiqc config file is not available in the docker image
 
@@ -58,15 +60,17 @@ log.info """
 
          Used parameters:
         -------------------------------------------
-         --runfolder            : ${params.runfolder}
-         --samplesheet          : ${params.samplesheet}
-         --outdir               : ${params.outdir}
-         --multiqc_config       : ${params.multiqc_config}
-         --title                : ${params.title}
-         --load_threads         : ${params.load_threads}
-         --proc_threads         : ${params.proc_threads}
-         --write_threads        : ${params.write_threads}
-         --barcode_mismatches   : ${params.barcode_mismatches}
+         --runfolder               : ${params.runfolder}
+         --samplesheet             : ${params.samplesheet}
+         --outdir                  : ${params.outdir}
+         --multiqc_config          : ${params.multiqc_config}
+         --title                   : ${params.title}
+         --load_threads            : ${params.load_threads}
+         --proc_threads            : ${params.proc_threads}
+         --write_threads           : ${params.write_threads}
+         --barcode_mismatches      : ${params.barcode_mismatches}
+         --adapter_stringency      : ${params.adapter_stringency}
+         --min_trimmed_read_length : ${params.min_trimmed_read_length}
 
          Runtime data:
         -------------------------------------------
@@ -96,15 +100,18 @@ log.info """
 
          Usage:
         -------------------------------------------
-         --runfolder            : Illumina run folder
-         --outdir               : where results will be saved, default is "results-bcl"
-         --samplesheet          : sample sheet file, default is runfolder/SampleSheet.csv
-         --multiqc_config       : config file for MultiQC, default is "multiqc_config.yml"
-         --title                : MultiQC report title, default is "InterOp and bcl2fastq summary"
-         --load_threads         : Number of threads used for loading BCL data. 4 by default.
-         --proc_threads         : Number of threads used for processing demultiplexed data. 4 by default.
-         --write_threads        : number of threads used for writing FASTQ data. ${ANSI_RED}Must not be higher than number of samples!${ANSI_RESET} 4 by default.
-         --barcode_mismatches:  : number of allowed barcode mismatches per index, 1 by default. Accepted values: 0,1,2.
+         --runfolder               : Illumina run folder
+         --outdir                  : where results will be saved, default is "results-bcl"
+         --samplesheet             : sample sheet file, default is runfolder/SampleSheet.csv
+         --multiqc_config          : config file for MultiQC, default is "multiqc_config.yml"
+         --title                   : MultiQC report title, default is "InterOp and bcl2fastq summary"
+         --load_threads            : Number of threads used for loading BCL data. 4 by default.
+         --proc_threads            : Number of threads used for processing demultiplexed data. 4 by default.
+         --write_threads           : number of threads used for writing FASTQ data. ${ANSI_RED}Must not be higher than number of samples!${ANSI_RESET} 4 by default.
+         --barcode_mismatches      : number of allowed barcode mismatches per index, 1 by default. Accepted values: 0,1,2.
+         --adapter_stringency      : 
+         --min_trimmed_read_length : 
+
         ===========================================
          """
          .stripIndent()
@@ -127,6 +134,12 @@ Channel
 process interop {
     tag "interop on $x"
 
+    cpus 1
+    queue 'small'
+    time '30m'
+    memory '10G'
+    clusterOptions '--account=project_2001881'
+
     input:
         path x from runfolder_interop
 
@@ -144,9 +157,18 @@ process interop {
 process bcl {
 
     tag "bcl2fastq"
+    
+    cpus 10
+    queue 'small'
+    time '2h'
+    memory '32G'
+    clusterOptions '--account=project_2001881'
+
+    
     publishDir params.outdir, mode: 'copy', pattern: 'fastq/**fastq.gz'
     publishDir params.outdir, mode: 'copy', pattern: 'bcl_out.log'
     scratch params.scratch
+    
     /* I use this scratch to be able to tail -f the bcl_out file, to monitor progress in the shiny app
     echo works but with delay, while this is real time*/
     
@@ -160,16 +182,15 @@ process bcl {
         path 'fastq/Stats/Stats.json' into bcl_ch
         path 'fastq/**fastq.gz' // ** is for recursive match, directories are omitted (the fastq files might be in fastq/someproject/...)
         path 'bcl_out.log'
-    
-    // default to --ignore-missing all?
+
     script:
-    
     """
     bcl2fastq -R $x \
     -o fastq \
     --sample-sheet $y \
-    --no-lane-splitting \
-    --ignore-missing-bcls \
+    --create-fastq-for-index-reads \
+    --adapter-stringency  ${params.adapter_stringency} \
+    --minimum-trimmed-read-length ${params.min_trimmed_read_length} \
     --barcode-mismatches ${params.barcode_mismatches} \
     -r ${params.load_threads} \
     -p ${params.proc_threads} \
@@ -179,6 +200,12 @@ process bcl {
 
 process multiqc {
     publishDir params.outdir, mode: 'copy'
+
+    cpus 1
+    queue 'small'
+    time '30m'
+    memory '10G'
+    clusterOptions '--account=project_2001881'
 
     input:
         file interop_file from interop_ch

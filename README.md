@@ -1,26 +1,30 @@
+# Acknowledgements
+I forged this pipeline from https://github.com/angelovangel/nextflow-bcl and started to use it as training pipeline to adjust it to our server structure and also to
+familiarize myself further with Nextflow. Possibly I'll try to translate it to DSL2.
+
+# Preparations
+First, create a docker image like this (On Ubuntu 20.04 you can currently install docker by typing `sudo apt-get install -y docker.io`)
+
+```bash
+sudo docker build -t fischuu/bcl:latest .
+sudo docker login
+sudo docker push fischuu/bcl
+singularity build bcl.sif docker://fischuu/bcl
+```
+
 # nextflow-bcl
 
-A simple [nextflow](https://www.nextflow.io/) pipeline for obtaining Illumina run metrics (InterOp) and generation of fastq files (bcl2fastq). The input is an Illumina run folder (with bcl files) and a SampleSheet.csv file. So far tested with runs from NextSeq and MiSeq machines. Run it with:
+A simple [nextflow](https://www.nextflow.io/) pipeline for obtaining Illumina run metrics (InterOp) and generation of fastq files (bcl2fastq). The input is an Illumina run folder (with bcl files) a SampleSheet.csv file
+as well as an output folder. So far tested with runs from NextSeq and MiSeq machines. Run it with:
 
 ```bash
-nextflow run angelovangel/nextflow-bcl --runfolder illumina_folder
+nextflow run main.nf \
+         --samplesheet /scratch/project_2001881/200930_NB551722_0015_AH2J53BGXF/SampleSheet.csv \
+         --runfolder /scratch/project_2001881/200930_NB551722_0015_AH2J53BGXF/ \
+         --outdir /scratch/project_2001881/200930_NB551722_0015_AH2J53BGXF_fastq/
 ```
 
-The pipeline runs in a docker container by default, so no need to install anything (except nextflow of course). It executes the Illumina programs [InterOp](https://github.com/Illumina/interop) summary and [bcl2fastq](https://emea.support.illumina.com/sequencing/sequencing_software/bcl2fastq-conversion-software.html), saves the fastq files in `results-bcl/fastq/`, and generates a [MultiQC](https://multiqc.info/) report in `results-bcl/`. That's it!  
-
-The above command assumes SampleSheet.csv is in the Illumina runs folder.
-Using the `--samplesheet` parameter, a different sample sheet can be passed. For all available parameters, try
-
-```bash
-nextflow run angelovangel/nextflow-bcl --help
-```
-
-I have uploaded a small test dataset from Illumina on Amazon S3, to run the pipeline with it use:
-
-```bash
-nextflow run angelovangel/nextflow-bcl -profile test
-# might take some time to get the data from amazon
-```
+The pipeline runs uses a docker container translated into a singularity image, so no need to install anything (except nextflow of course). It executes the Illumina programs [InterOp](https://github.com/Illumina/interop) summary and [bcl2fastq](https://emea.support.illumina.com/sequencing/sequencing_software/bcl2fastq-conversion-software.html), saves the fastq files in the outfolder (default: `results-bcl/fastq/`), and generates a [MultiQC](https://multiqc.info/) report. That's it!  
 
 *Tip* - you can then run the [angelovangel/fastp](https://github.com/angelovangel/nextflow-fastp) pipeline on the fastq files to get data on their quality and filter/trim them.   
 
