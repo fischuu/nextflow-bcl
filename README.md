@@ -18,13 +18,14 @@ A simple [nextflow](https://www.nextflow.io/) pipeline for obtaining Illumina ru
 as well as an output folder. So far tested with runs from NextSeq and MiSeq machines. Run it with:
 
 ```bash
-nextflow run main.nf \
-         --samplesheet /scratch/project_2001881/200806_NB551722_0013_AHYGFLBGXC/SampleSheet.csv \
-         --runfolder /scratch/project_2001881/200806_NB551722_0013_AHYGFLBGXC/ \
-         --outdir /scratch/project_2001881/200806_NB551722_0013_AHYGFLBGXC_fastq/
-```
+nextflow run main.nf --runfolder /scratch/project_2001881/200608_NB551722_0012_AHCKCTAFX2
+nextflow run main.nf --runfolder /scratch/project_2001881/200806_NB551722_0013_AHYGFLBGXC
+nextflow run main.nf --runfolder /scratch/project_2001881/200817_NB551722_0014_AHY5GCBGXC
+nextflow run main.nf --runfolder /scratch/project_2001881/200930_NB551722_0015_AH2J53BGXF
+nextflow run main.nf --runfolder /scratch/project_2001881/201110_NB551722_0016_AHYGMKBGXC
+nextflow run main.nf --runfolder /scratch/project_2001881/201119_NB551722_0017_AH2HJ5BGXF
 
-200817_NB551722_0014_AHY5GCBGXC
+```
 
 The pipeline runs uses a docker container translated into a singularity image, so no need to install anything (except nextflow of course). It executes the Illumina programs [InterOp](https://github.com/Illumina/interop) summary and [bcl2fastq](https://emea.support.illumina.com/sequencing/sequencing_software/bcl2fastq-conversion-software.html), saves the fastq files in the outfolder (default: `results-bcl/fastq/`), and generates a [MultiQC](https://multiqc.info/) report. That's it!  
 

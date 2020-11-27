@@ -24,6 +24,7 @@ if (params.help) {
 
  params.runfolder   = ""
  params.samplesheet = "${params.runfolder}/SampleSheet.csv"
+ params.outdir      = "${params.runfolder}_results-bcl"
  
  // find number of samples in order to dynamically set write_threads, must NOT be higher than number of samples
  def sample_index = file(params.samplesheet)
@@ -36,7 +37,7 @@ if (params.help) {
  def nsamples = total_lines - (sample_index + 1)
  //println "total_lines: $total_lines, sample_index: $sample_index, nsamples: $nsamples"
  
- params.outdir = "$workflow.launchDir/results-bcl"
+ 
  params.title = "InterOp and bcl2fastq summary"
  params.multiqc_config = "$baseDir/multiqc_config.yml" //in case ncct multiqc config needed
  params.load_threads = 10
