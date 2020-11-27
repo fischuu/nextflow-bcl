@@ -1,9 +1,9 @@
 name: nextflow-bcl
 channels:
   - conda-forge
-  - dranew
+  - Freenome
   - bioconda
 dependencies:
-  - bcl2fastq
+  - bcl2fastq=2.20
   - illumina-interop
   - multiqc=1.8

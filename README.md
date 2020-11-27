@@ -6,7 +6,7 @@ familiarize myself further with Nextflow. Possibly I'll try to translate it to D
 First, create a docker image like this (On Ubuntu 20.04 you can currently install docker by typing `sudo apt-get install -y docker.io`)
 
 ```bash
-sudo docker build -t fischuu/bcl:latest .
+sudo docker build -t fischuu/bcl:0.2 -t fischuu/bcl:latest .
 sudo docker login
 sudo docker push fischuu/bcl
 singularity build bcl.sif docker://fischuu/bcl
@@ -19,10 +19,12 @@ as well as an output folder. So far tested with runs from NextSeq and MiSeq mach
 
 ```bash
 nextflow run main.nf \
-         --samplesheet /scratch/project_2001881/200930_NB551722_0015_AH2J53BGXF/SampleSheet.csv \
-         --runfolder /scratch/project_2001881/200930_NB551722_0015_AH2J53BGXF/ \
-         --outdir /scratch/project_2001881/200930_NB551722_0015_AH2J53BGXF_fastq/
+         --samplesheet /scratch/project_2001881/200806_NB551722_0013_AHYGFLBGXC/SampleSheet.csv \
+         --runfolder /scratch/project_2001881/200806_NB551722_0013_AHYGFLBGXC/ \
+         --outdir /scratch/project_2001881/200806_NB551722_0013_AHYGFLBGXC_fastq/
 ```
+
+200817_NB551722_0014_AHY5GCBGXC
 
 The pipeline runs uses a docker container translated into a singularity image, so no need to install anything (except nextflow of course). It executes the Illumina programs [InterOp](https://github.com/Illumina/interop) summary and [bcl2fastq](https://emea.support.illumina.com/sequencing/sequencing_software/bcl2fastq-conversion-software.html), saves the fastq files in the outfolder (default: `results-bcl/fastq/`), and generates a [MultiQC](https://multiqc.info/) report. That's it!  
 

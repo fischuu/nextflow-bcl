@@ -161,7 +161,7 @@ process bcl {
     cpus 10
     queue 'small'
     time '2h'
-    memory '32G'
+    memory '64G'
     clusterOptions '--account=project_2001881'
 
     
