@@ -18,12 +18,16 @@ A simple [nextflow](https://www.nextflow.io/) pipeline for obtaining Illumina ru
 as well as an output folder. So far tested with runs from NextSeq and MiSeq machines. Run it with:
 
 ```bash
+module load bioconda
+conda activate nextflow
 nextflow run main.nf --runfolder /scratch/project_2001881/200608_NB551722_0012_AHCKCTAFX2
 nextflow run main.nf --runfolder /scratch/project_2001881/200806_NB551722_0013_AHYGFLBGXC
 nextflow run main.nf --runfolder /scratch/project_2001881/200817_NB551722_0014_AHY5GCBGXC
 nextflow run main.nf --runfolder /scratch/project_2001881/200930_NB551722_0015_AH2J53BGXF
 nextflow run main.nf --runfolder /scratch/project_2001881/201110_NB551722_0016_AHYGMKBGXC
 nextflow run main.nf --runfolder /scratch/project_2001881/201119_NB551722_0017_AH2HJ5BGXF
+nextflow run main.nf --runfolder /scratch/project_2001881/201204_NB551722_0018_AH2HWGBGXF
+nextflow run main.nf --runfolder /scratch/project_2001881/201214_NB551722_0019_AHYGCTBGXC
 
 ```
 
